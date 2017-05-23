@@ -4,12 +4,15 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QNetworkAccessManager>
+#include <QCloseEvent>
+#include <QSystemTrayIcon>
 
 class QLabel;
 class QLineEdit;
 class QPushButton;
 class QNetworkRequest;
 class QNetworkReply;
+class QMenu;
 
 namespace Ui {
 class MainWindow;
@@ -26,12 +29,20 @@ public:
 private slots:
     //void httpFinished();
     void handleTimeout();
+    void onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason);
+    void on_actionQuit_triggered();
 
 private:
+    void initializeTrayIcon();
+    void closeEvent(QCloseEvent *event);
+
     QString queryPublicIp();
     void updateCloudXnsDns();
 
     Ui::MainWindow *ui;
+    QSystemTrayIcon *m_trayIcon;
+    QMenu *m_trayIconMenu;
+    bool m_isQuit;
     QTimer *m_timer;
     QNetworkAccessManager m_qnam;
     QString m_domain, m_publicIp;

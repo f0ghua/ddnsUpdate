@@ -31,3 +31,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    icons.qrc
+
+RC_FILE = ddnsUpdate.rc

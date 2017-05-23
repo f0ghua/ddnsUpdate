@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/dns_16x16.png</file>
+        <file>images/dns_32x32.png</file>
+        <file>images/quit.png</file>
+    </qresource>
+</RCC>

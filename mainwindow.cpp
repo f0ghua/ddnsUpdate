@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
     m_timer->start();
 
+    initializeTrayIcon();
     handleTimeout();
 }
 
@@ -34,6 +35,62 @@ MainWindow::~MainWindow()
     m_timer->stop();
 }
 
+void MainWindow::initializeTrayIcon()
+{
+    m_isQuit = false;
+
+    m_trayIconMenu = new QMenu(this);
+    m_trayIconMenu->addAction(ui->actionQuit);
+    m_trayIconMenu->addSeparator();
+
+    m_trayIcon = new QSystemTrayIcon(this);
+    QIcon icon(":images/dns_16x16.png");
+    m_trayIcon->setIcon(icon);
+    m_trayIcon->setToolTip(tr("ddnsUpdate"));
+    m_trayIcon->setContextMenu(m_trayIconMenu);
+    m_trayIcon->showMessage(tr("ddnsUpdate"), tr("ddnsUpdate"), QSystemTrayIcon::Information, 5000);
+    m_trayIcon->show();
+
+    connect(m_trayIcon,
+         &QSystemTrayIcon::activated,
+         this,
+         &onSystemTrayIconClicked);
+}
+
+void MainWindow::onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
+{
+    switch(reason)
+    {
+    case QSystemTrayIcon::Trigger:
+        break;
+    case QSystemTrayIcon::DoubleClick:
+        this->setWindowState(Qt::WindowActive);
+        this->show();
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_isQuit) {
+        event->accept();
+        return;
+    }
+
+    if(m_trayIcon->isVisible()) {
+        hide();
+        event->ignore();
+    }
+}
+
+void MainWindow::on_actionQuit_triggered()
+{
+    m_isQuit = true;
+    this->hide();
+    this->close();
+}
 void MainWindow::handleTimeout()
 {
     m_publicIp = queryPublicIp();
