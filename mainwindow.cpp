@@ -5,6 +5,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
+#include <QSettings>
 #include <QDebug>
 
 static const char g_ipServerUrl[] = "http://greak.net/ip";
@@ -16,10 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    readConfigSettings();
+    /*
     m_domain = "f0ghua.tk";
     m_apiKey = "8c51818384738f511d2619af665a7891";
     m_secretKey = "e0ca26f89f1cb174";
-
+    */
     m_timer = new QTimer(this);
     m_timer->setInterval(600*1000);
     connect(m_timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
@@ -91,6 +94,7 @@ void MainWindow::on_actionQuit_triggered()
     this->hide();
     this->close();
 }
+
 void MainWindow::handleTimeout()
 {
     m_publicIp = queryPublicIp();
@@ -171,4 +175,33 @@ void MainWindow::updateCloudXnsDns()
     qDebug() << tr("get ip addr: %1").arg(ipStr);
 #endif
 
+}
+
+void MainWindow::writeConfigSettings()
+{
+    QSettings *cfg = new QSettings("config.ini", QSettings::IniFormat);
+    cfg->setIniCodec("UTF-8");
+
+    cfg->setValue("domain", ui->leDomain->text());
+    cfg->setValue("apikey", ui->leApiKey->text());
+    cfg->setValue("secretkey", ui->leSecretKey->text());
+}
+
+void MainWindow::readConfigSettings()
+{
+    QSettings *cfg = new QSettings("config.ini", QSettings::IniFormat);
+    cfg->setIniCodec("UTF-8");
+
+    m_domain = cfg->value("domain", "").toString();
+    ui->leDomain->setText(m_domain);
+    m_apiKey = cfg->value("apikey", "").toString();
+    ui->leApiKey->setText(m_apiKey);
+    m_secretKey = cfg->value("secretkey", "").toString();
+    ui->leSecretKey->setText(m_secretKey);
+}
+
+void MainWindow::on_pbSaveConfig_clicked()
+{
+    writeConfigSettings();
+    handleTimeout();
 }
