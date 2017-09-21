@@ -8,10 +8,13 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG(release, debug|release):DEFINES += F_NO_DEBUG
-
 TARGET = ddnsUpdate
 TEMPLATE = app
+
+CONFIG(release, debug|release): {
+    #DEFINES += F_NO_DEBUG
+    DEFINES += F_ENABLE_TRACEFILE
+}
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
