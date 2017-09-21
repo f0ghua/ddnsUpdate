@@ -13,7 +13,7 @@ TEMPLATE = app
 
 CONFIG(release, debug|release): {
     #DEFINES += F_NO_DEBUG
-    DEFINES += F_ENABLE_TRACEFILE
+    #DEFINES += F_ENABLE_TRACEFILE
 }
 
 # The following define makes your compiler emit warnings if you use

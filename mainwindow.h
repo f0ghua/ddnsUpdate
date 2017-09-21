@@ -32,13 +32,14 @@ private slots:
     void onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason);
     void on_actionQuit_triggered();
     void on_pbSaveConfig_clicked();
+    void on_pbClear_clicked();
 
 private:
     void initializeTrayIcon();
     void closeEvent(QCloseEvent *event);
     void writeConfigSettings();
     void readConfigSettings();
-
+    void logMsg(QString msg);
     QString queryPublicIp();
     void updateCloudXnsDns();
 

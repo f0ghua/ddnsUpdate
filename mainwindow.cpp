@@ -101,6 +101,13 @@ void MainWindow::handleTimeout()
     updateCloudXnsDns();
 }
 
+void MainWindow::logMsg(QString msg)
+{
+    QString current_date_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString message = QString("[%1] %2").arg(current_date_time).arg(msg);
+    ui->pteLog->appendPlainText(message);
+}
+
 QString MainWindow::queryPublicIp()
 {
     QEventLoop loop;
@@ -117,9 +124,8 @@ QString MainWindow::queryPublicIp()
         QByteArray data = reply->readAll();
         ipStr = QString(data).simplified();
     }
-#ifndef F_NO_DEBUG
-    qDebug() << tr("get ip addr: %1").arg(ipStr);
-#endif
+
+    logMsg(tr("get ip addr: %1").arg(ipStr));
     return ipStr;
 }
 
@@ -129,28 +135,21 @@ void MainWindow::updateCloudXnsDns()
     QNetworkRequest request;
     QString ipStr;
     QString url = g_cloudXnsUrl;
-
-
     QByteArray postData =
             QString("{\"domain\":\"%1\",\"ip\":\"%2\",\"line_id\":\"1\"}").arg(m_domain).arg(m_publicIp).toLatin1();
-#ifndef F_NO_DEBUG
-    qDebug() << tr("postData: %1").arg(QString(postData));
-#endif
+
+    logMsg(tr("postData: %1").arg(QString(postData)));
     QDateTime time = QDateTime::currentDateTime();
     QString dateTime = QLocale( QLocale::C ).toString(time, "ddd,d MMMM yyyy hh:mm:ss +0800");
-#ifndef F_NO_DEBUG
-    qDebug() << tr("date: %1").arg(dateTime);
-#endif
+    logMsg(tr("postDate: %1").arg(dateTime));
 
     QString macRaw = m_apiKey + url + postData + dateTime + m_secretKey;
     QString md5;
     QByteArray ba;
     ba = QCryptographicHash::hash(macRaw.toLatin1(), QCryptographicHash::Md5);
     md5.append(ba.toHex());
-#ifndef F_NO_DEBUG
-    qDebug() << tr("md5: %1").arg(md5);
-#endif
 
+    logMsg(tr("md5: %1").arg(md5));
     //return;
 
     request.setUrl(url);
@@ -167,14 +166,10 @@ void MainWindow::updateCloudXnsDns()
         QByteArray data = reply->readAll();
         ipStr = QString(data); //.simplified();
     } else {
-#ifndef F_NO_DEBUG
-        qDebug() << "error:" << reply->errorString();
-#endif
+        logMsg(tr("error: %1").arg(reply->errorString()));
     }
-#ifndef F_NO_DEBUG
-    qDebug() << tr("get ip addr: %1").arg(ipStr);
-#endif
 
+    logMsg(tr("get returned msg: %1").arg(ipStr));
 }
 
 void MainWindow::writeConfigSettings()
@@ -204,4 +199,9 @@ void MainWindow::on_pbSaveConfig_clicked()
 {
     writeConfigSettings();
     handleTimeout();
+}
+
+void MainWindow::on_pbClear_clicked()
+{
+    ui->pteLog->clear();
 }
