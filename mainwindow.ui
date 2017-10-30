@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
-    <height>337</height>
+    <width>522</width>
+    <height>425</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,8 +27,100 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="0" colspan="3">
+     <widget class="QPlainTextEdit" name="pteLog"/>
+    </item>
+    <item row="4" column="0">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>291</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="4" column="1">
+     <widget class="QPushButton" name="pbClear">
+      <property name="text">
+       <string>Clear Log</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QPushButton" name="pbSaveConfig">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Save Config</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" colspan="3">
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="title">
+       <string>General Settings</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Domain Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="leDomain"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="3">
+     <widget class="QGroupBox" name="grpDnspod">
+      <property name="title">
+       <string>DNSPod Settings</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>API Token</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="leApiToken"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <widget class="QGroupBox" name="grpCloudXNS">
       <property name="title">
        <string>CloudXNS Settings</string>
       </property>
@@ -59,65 +151,7 @@
        <item row="2" column="1">
         <widget class="QLineEdit" name="leSecretKey"/>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Domain Name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="leDomain"/>
-       </item>
       </layout>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>291</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="1" column="0" colspan="3">
-     <widget class="QPlainTextEdit" name="pteLog"/>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="pbSaveConfig">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>120</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Save Config</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pbClear">
-      <property name="text">
-       <string>Clear Log</string>
-      </property>
      </widget>
     </item>
    </layout>
@@ -127,7 +161,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>484</width>
+     <width>522</width>
      <height>23</height>
     </rect>
    </property>

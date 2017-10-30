@@ -11,13 +11,15 @@
 static const char g_ipServerUrl[] = "http://greak.net/ip";
 static const char g_cloudXnsUrl[] = "http://www.cloudxns.net/api2/ddns";
 
-static const char g_loginToken[] = "39298,39e2babdb13b88773f2046ac9116d577";
+// reference to https://github.com/anrip/ArDNSPod
+//static const char g_loginToken[] = "39298,39e2babdb13b88773f2046ac9116d577";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->grpCloudXNS->hide();
 
     readConfigSettings();
     /*
@@ -31,8 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer->start();
 
     initializeTrayIcon();
-    dnspod_getDomainInfo();
-    dnspod_getRecordList();
+    dnspod_init();
 
     handleTimeout();
 }
@@ -142,7 +143,7 @@ void MainWindow::dnspod_getDomainList()
     QByteArray postData;
     QString url = "https://dnsapi.cn/Domain.List";
 
-    postData = QString("login_token=%1&format=json").arg(g_loginToken).toLatin1();
+    postData = QString("login_token=%1&format=json").arg(m_apiToken).toLatin1();
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setRawHeader("UserAgent", "DNSPOD DDNS Client/1.0.0 (fog_hua@126.com)");
@@ -182,6 +183,12 @@ void MainWindow::dnspod_getDomainList()
     }
 }
 
+void MainWindow::dnspod_init()
+{
+    dnspod_getDomainInfo();
+    dnspod_getRecordList();
+}
+
 void MainWindow::dnspod_getDomainInfo()
 {
     QEventLoop loop;
@@ -189,7 +196,7 @@ void MainWindow::dnspod_getDomainInfo()
     QByteArray postData;
     QString url = "https://dnsapi.cn/Domain.Info";
 
-    postData = QString("login_token=%1&format=json&domain=%2").arg(g_loginToken).arg(m_domain).toLatin1();
+    postData = QString("login_token=%1&format=json&domain=%2").arg(m_apiToken).arg(m_domain).toLatin1();
     logMsg(tr("postData: %1").arg(QString(postData)));
 
     request.setUrl(url);
@@ -224,7 +231,7 @@ void MainWindow::dnspod_getRecordList()
     QByteArray postData;
     QString url = "https://dnsapi.cn/Record.List";
 
-    postData = QString("login_token=%1&format=json&domain=%2&sub_domain=www").arg(g_loginToken).arg(m_domain).toLatin1();
+    postData = QString("login_token=%1&format=json&domain=%2&sub_domain=www").arg(m_apiToken).arg(m_domain).toLatin1();
     logMsg(tr("postData: %1").arg(QString(postData)));
 
     request.setUrl(url);
@@ -266,7 +273,7 @@ void MainWindow::dnspod_updateDns()
     QString url = "https://dnsapi.cn/Record.Ddns";
 
     postData = QString("login_token=%1&format=json&domain_id=%2&record_id=%3&record_line_id=%4&value=%5&sub_domain=www").\
-            arg(g_loginToken).arg(m_dnspodDomainId).arg(m_dnspodRecordId).arg(m_dnspodRecordLineId).arg(m_publicIp).toLatin1();
+            arg(m_apiToken).arg(m_dnspodDomainId).arg(m_dnspodRecordId).arg(m_dnspodRecordLineId).arg(m_publicIp).toLatin1();
     logMsg(tr("postData: %1").arg(QString(postData)));
 
     request.setUrl(url);
@@ -340,6 +347,7 @@ void MainWindow::writeConfigSettings()
     cfg->setValue("domain", ui->leDomain->text());
     cfg->setValue("apikey", ui->leApiKey->text());
     cfg->setValue("secretkey", ui->leSecretKey->text());
+    cfg->setValue("apitoken", ui->leApiToken->text());
 }
 
 void MainWindow::readConfigSettings()
@@ -353,11 +361,16 @@ void MainWindow::readConfigSettings()
     ui->leApiKey->setText(m_apiKey);
     m_secretKey = cfg->value("secretkey", "").toString();
     ui->leSecretKey->setText(m_secretKey);
+    m_apiToken = cfg->value("apitoken", "").toString();
+    ui->leApiToken->setText(m_apiToken);
 }
 
 void MainWindow::on_pbSaveConfig_clicked()
 {
     writeConfigSettings();
+    readConfigSettings();
+    dnspod_init();
+
     handleTimeout();
 }
 
