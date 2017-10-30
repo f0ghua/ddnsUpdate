@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>312</height>
+    <width>484</width>
+    <height>337</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -127,7 +127,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>449</width>
+     <width>484</width>
      <height>23</height>
     </rect>
    </property>

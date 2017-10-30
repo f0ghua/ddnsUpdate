@@ -11,6 +11,8 @@
 static const char g_ipServerUrl[] = "http://greak.net/ip";
 static const char g_cloudXnsUrl[] = "http://www.cloudxns.net/api2/ddns";
 
+static const char g_loginToken[] = "39298,39e2babdb13b88773f2046ac9116d577";
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -29,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer->start();
 
     initializeTrayIcon();
+    dnspod_getDomainInfo();
+    dnspod_getRecordList();
+
     handleTimeout();
 }
 
@@ -98,7 +103,8 @@ void MainWindow::on_actionQuit_triggered()
 void MainWindow::handleTimeout()
 {
     m_publicIp = queryPublicIp();
-    updateCloudXnsDns();
+    //updateCloudXnsDns();
+    dnspod_updateDns();
 }
 
 void MainWindow::logMsg(QString msg)
@@ -127,6 +133,160 @@ QString MainWindow::queryPublicIp()
 
     logMsg(tr("get ip addr: %1").arg(ipStr));
     return ipStr;
+}
+
+void MainWindow::dnspod_getDomainList()
+{
+    QEventLoop loop;
+    QNetworkRequest request;
+    QByteArray postData;
+    QString url = "https://dnsapi.cn/Domain.List";
+
+    postData = QString("login_token=%1&format=json").arg(g_loginToken).toLatin1();
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setRawHeader("UserAgent", "DNSPOD DDNS Client/1.0.0 (fog_hua@126.com)");
+    QNetworkReply *reply = m_qnam.post(request, postData);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QString replayStr = QString(data); //.simplified();
+        qDebug() << replayStr;
+        QRegularExpression re("\"id\":(\\d+)");
+        QRegularExpressionMatchIterator i = re.globalMatch(replayStr);
+        while (i.hasNext()) {
+            QRegularExpressionMatch match = i.next();
+            // use match
+            QString id = match.captured(1);
+            m_dnspodDomainIdList.append(id);
+        }
+#ifndef F_NO_DEBUG
+        qDebug() << m_dnspodDomainIdList;
+#endif
+
+        QRegularExpression re2("\"punycode\":\"([^\"]+)\"");
+        i = re2.globalMatch(replayStr);
+        while (i.hasNext()) {
+            QRegularExpressionMatch match = i.next();
+            // use match
+            QString domain = match.captured(1);
+            m_dnspodDomainList.append(domain);
+        }
+#ifndef F_NO_DEBUG
+        qDebug() << m_dnspodDomainList;
+#endif
+    } else {
+        logMsg(tr("error: %1").arg(reply->errorString()));
+    }
+}
+
+void MainWindow::dnspod_getDomainInfo()
+{
+    QEventLoop loop;
+    QNetworkRequest request;
+    QByteArray postData;
+    QString url = "https://dnsapi.cn/Domain.Info";
+
+    postData = QString("login_token=%1&format=json&domain=%2").arg(g_loginToken).arg(m_domain).toLatin1();
+    logMsg(tr("postData: %1").arg(QString(postData)));
+
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setRawHeader("UserAgent", "DNSPOD DDNS Client/1.0.0 (fog_hua@126.com)");
+    QNetworkReply *reply = m_qnam.post(request, postData);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QString replayStr = QString(data); //.simplified();
+#ifndef F_NO_DEBUG
+        qDebug() << replayStr;
+#endif
+        QRegularExpression re("\"id\":\"(\\d+)\"");
+        QRegularExpressionMatch match = re.match(replayStr);
+        if (match.hasMatch()) {
+            m_dnspodDomainId = match.captured(1);
+        }
+        logMsg(tr("get domain id: %1").arg(m_dnspodDomainId));
+
+    } else {
+        logMsg(tr("error: %1").arg(reply->errorString()));
+    }
+}
+
+void MainWindow::dnspod_getRecordList()
+{
+    QEventLoop loop;
+    QNetworkRequest request;
+    QByteArray postData;
+    QString url = "https://dnsapi.cn/Record.List";
+
+    postData = QString("login_token=%1&format=json&domain=%2&sub_domain=www").arg(g_loginToken).arg(m_domain).toLatin1();
+    logMsg(tr("postData: %1").arg(QString(postData)));
+
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setRawHeader("UserAgent", "DNSPOD DDNS Client/1.0.0 (fog_hua@126.com)");
+    QNetworkReply *reply = m_qnam.post(request, postData);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QString replayStr = QString(data); //.simplified();
+#ifndef F_NO_DEBUG
+        qDebug() << replayStr;
+#endif
+        QRegularExpression re("\"id\":\"(\\d+)\",\"ttl");
+        QRegularExpressionMatch match = re.match(replayStr);
+        if (match.hasMatch()) {
+            m_dnspodRecordId = match.captured(1);
+        }
+
+        QRegularExpression re2("\"line_id\":\"([^\"]+)\"");
+        match = re2.match(replayStr);
+        if (match.hasMatch()) {
+            m_dnspodRecordLineId = match.captured(1);
+        }
+        logMsg(tr("get record id = %1, line = %2").arg(m_dnspodRecordId).arg(m_dnspodRecordLineId));
+
+    } else {
+        logMsg(tr("error: %1").arg(reply->errorString()));
+    }
+}
+
+void MainWindow::dnspod_updateDns()
+{
+    QEventLoop loop;
+    QNetworkRequest request;
+    QByteArray postData;
+    QString url = "https://dnsapi.cn/Record.Ddns";
+
+    postData = QString("login_token=%1&format=json&domain_id=%2&record_id=%3&record_line_id=%4&value=%5&sub_domain=www").\
+            arg(g_loginToken).arg(m_dnspodDomainId).arg(m_dnspodRecordId).arg(m_dnspodRecordLineId).arg(m_publicIp).toLatin1();
+    logMsg(tr("postData: %1").arg(QString(postData)));
+
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setRawHeader("UserAgent", "DNSPOD DDNS Client/1.0.0 (fog_hua@126.com)");
+    QNetworkReply *reply = m_qnam.post(request, postData);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QString replayStr = QString(data); //.simplified();
+#ifndef F_NO_DEBUG
+        qDebug() << replayStr;
+#endif
+        logMsg(tr("get returned msg: %1").arg(replayStr));
+
+    } else {
+        logMsg(tr("error: %1").arg(reply->errorString()));
+    }
 }
 
 void MainWindow::updateCloudXnsDns()
