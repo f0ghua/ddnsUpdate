@@ -12,7 +12,7 @@ TARGET = ddnsUpdate
 TEMPLATE = app
 
 CONFIG(release, debug|release): {
-    #DEFINES += F_NO_DEBUG
+    DEFINES += F_NO_DEBUG
     #DEFINES += F_ENABLE_TRACEFILE
 }
 

@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_secretKey = "e0ca26f89f1cb174";
     */
     m_timer = new QTimer(this);
-    m_timer->setInterval(600*1000);
+    m_timer->setInterval(m_interval*1000);
     connect(m_timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
     m_timer->start();
 
@@ -344,6 +344,7 @@ void MainWindow::writeConfigSettings()
     QSettings *cfg = new QSettings("config.ini", QSettings::IniFormat);
     cfg->setIniCodec("UTF-8");
 
+    cfg->setValue("interval", m_interval);
     cfg->setValue("domain", ui->leDomain->text());
     cfg->setValue("apikey", ui->leApiKey->text());
     cfg->setValue("secretkey", ui->leSecretKey->text());
@@ -355,6 +356,7 @@ void MainWindow::readConfigSettings()
     QSettings *cfg = new QSettings("config.ini", QSettings::IniFormat);
     cfg->setIniCodec("UTF-8");
 
+    m_interval = cfg->value("interval", "1200").toInt();
     m_domain = cfg->value("domain", "").toString();
     ui->leDomain->setText(m_domain);
     m_apiKey = cfg->value("apikey", "").toString();

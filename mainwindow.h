@@ -55,6 +55,7 @@ private:
     QMenu *m_trayIconMenu;
     bool m_isQuit;
     QTimer *m_timer;
+    qint32 m_interval;
     QNetworkAccessManager m_qnam;
     QString m_domain, m_publicIp;
     QString m_apiKey, m_secretKey;
