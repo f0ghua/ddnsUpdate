@@ -63,7 +63,7 @@ void MainWindow::initializeTrayIcon()
     connect(m_trayIcon,
          &QSystemTrayIcon::activated,
          this,
-         &onSystemTrayIconClicked);
+         &MainWindow::onSystemTrayIconClicked);
 }
 
 void MainWindow::onSystemTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
