@@ -6,9 +6,10 @@
 #include <QNetworkReply>
 #include <QUrl>
 #include <QSettings>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QDebug>
 
-static const char g_ipServerUrl[] = "http://greak.net/ip";
 static const char g_cloudXnsUrl[] = "http://www.cloudxns.net/api2/ddns";
 
 // reference to https://github.com/anrip/ArDNSPod
@@ -115,13 +116,35 @@ void MainWindow::logMsg(QString msg)
     ui->pteLog->appendPlainText(message);
 }
 
-QString MainWindow::queryPublicIp()
+QString MainWindow::queryPublicIp_ipify()
 {
     QEventLoop loop;
     QNetworkRequest request;
     QString ipStr;
 
-    QString url = g_ipServerUrl;
+    QString url = "https://api.ipify.org/?format=json";
+    request.setUrl(url);
+    QNetworkReply *reply = m_qnam.get(request);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (!reply->error()) {
+        QByteArray data = reply->readAll();
+        QJsonObject doc = QJsonDocument::fromJson(data).object();
+        ipStr = doc.value("ip").toString();
+    }
+
+    logMsg(tr("get ip addr: %1").arg(ipStr));
+    return ipStr;
+}
+
+QString MainWindow::queryPublicIp_greak()
+{
+    QEventLoop loop;
+    QNetworkRequest request;
+    QString ipStr;
+
+    QString url = "http://greak.net/ip";
     request.setUrl(url);
     QNetworkReply *reply = m_qnam.get(request);
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -134,6 +157,11 @@ QString MainWindow::queryPublicIp()
 
     logMsg(tr("get ip addr: %1").arg(ipStr));
     return ipStr;
+}
+
+QString MainWindow::queryPublicIp()
+{
+    return queryPublicIp_ipify();
 }
 
 void MainWindow::dnspod_getDomainList()
