@@ -45,14 +45,28 @@ private:
     QString queryPublicIp();
     void updateCloudXnsDns();
 
+    void dnspod_init();
+    void dnspod_getDomainList();
+    void dnspod_getDomainInfo();
+    void dnspod_getRecordList();
+    void dnspod_updateDns();
+
+
     Ui::MainWindow *ui;
     QSystemTrayIcon *m_trayIcon;
     QMenu *m_trayIconMenu;
     bool m_isQuit;
     QTimer *m_timer;
+    qint32 m_interval;
     QNetworkAccessManager m_qnam;
     QString m_domain, m_publicIp;
     QString m_apiKey, m_secretKey;
+    QString m_apiToken;
+    QStringList m_dnspodDomainIdList;
+    QStringList m_dnspodDomainList;
+    QString m_dnspodDomainId;
+    QString m_dnspodRecordId;
+    QString m_dnspodRecordLineId;
 };
 
 #endif // MAINWINDOW_H
