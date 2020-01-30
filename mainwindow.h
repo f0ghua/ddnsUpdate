@@ -40,6 +40,8 @@ private:
     void writeConfigSettings();
     void readConfigSettings();
     void logMsg(QString msg);
+    QString queryPublicIp_ipify();
+    QString queryPublicIp_greak();
     QString queryPublicIp();
     void updateCloudXnsDns();
 
