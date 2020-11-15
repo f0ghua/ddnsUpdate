@@ -14,6 +14,12 @@ class QNetworkRequest;
 class QNetworkReply;
 class QMenu;
 
+struct DnspodRecord {
+    QString name;
+    QString id;
+    QString lineId;
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -43,14 +49,12 @@ private:
     QString queryPublicIp_ipify();
     QString queryPublicIp_greak();
     QString queryPublicIp();
-    void updateCloudXnsDns();
 
     void dnspod_init();
     void dnspod_getDomainList();
     void dnspod_getDomainInfo();
     void dnspod_getRecordList();
     void dnspod_updateDns();
-
 
     Ui::MainWindow *ui;
     QSystemTrayIcon *m_trayIcon;
@@ -67,6 +71,7 @@ private:
     QString m_dnspodDomainId;
     QString m_dnspodRecordId;
     QString m_dnspodRecordLineId;
+    QList<DnspodRecord> m_dnspodRecordList;
 };
 
 #endif // MAINWINDOW_H
